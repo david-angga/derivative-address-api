@@ -23,7 +23,11 @@ function nodeToP2shSegwitAddress(hdNode) {
   return bjs.address.fromOutputScript(scriptPubkey)
 }
 
-app.get('/', (req, res) => res.send('BTC Address Derivative Generator'))
+app.get('/', function(req,res) {
+  var path    = require("path");
+  
+  res.sendFile(path.join(__dirname+'/index.html'));
+});
 
 app.get('/ypub/:ypub/amount/:amount', function (req,res) {
   try {
