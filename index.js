@@ -23,7 +23,7 @@ function nodeToP2shSegwitAddress(hdNode) {
   return bjs.address.fromOutputScript(scriptPubkey)
 }
 
-function returnHDNodeFromYpub(ypub) {
+function returnHDNodeFromYpub(ypub,res) {
   try {
     var xpub = ypubToXpub(ypub);
   } catch (err) {
@@ -44,7 +44,7 @@ app.get('/', function(req,res) {
 // generate multiple addresses from the given ypub and amount
 app.get('/ypub/:ypub/amount/:amount', function (req,res) {
 
-  var hdNode = returnHDNodeFromYpub(req.params.ypub);
+  var hdNode = returnHDNodeFromYpub(req.params.ypub,res);
 
   try {
     var addresses = [parseInt(req.params.amount)];
@@ -64,7 +64,7 @@ app.get('/ypub/:ypub/amount/:amount', function (req,res) {
 
 // generate single address from the given ypub on the given index
 app.get('/ypub/:ypub/at/:idx', function (req,res){
-  var hdNode = returnHDNodeFromYpub(req.params.ypub);
+  var hdNode = returnHDNodeFromYpub(req.params.ypub,res);
 
   try {
     var address = nodeToP2shSegwitAddress(hdNode.derive(0).derive(parseInt(req.params.idx)));
