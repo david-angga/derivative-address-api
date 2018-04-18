@@ -23,21 +23,29 @@ function nodeToP2shSegwitAddress(hdNode) {
   return bjs.address.fromOutputScript(scriptPubkey)
 }
 
+function returnHDNodeFromYpub(ypub) {
+  try {
+    var xpub = ypubToXpub(ypub);
+  } catch (err) {
+    res.send("ypub error!");
+  }
+
+  var hdNode = bjs.HDNode.fromBase58(xpub);
+
+  return hdNode;
+}
+
 app.get('/', function(req,res) {
   var path    = require("path");
   
   res.sendFile(path.join(__dirname+'/index.html'));
 });
 
+// generate multiple addresses from the given ypub and amount
 app.get('/ypub/:ypub/amount/:amount', function (req,res) {
-  try {
-    var xpub = ypubToXpub(req.params.ypub);
-  } catch (err) {
-    res.send("ypub error!");
-  }
-  
 
-  var hdNode = bjs.HDNode.fromBase58(xpub);
+  var hdNode = returnHDNodeFromYpub(req.params.ypub);
+
   try {
     var addresses = [parseInt(req.params.amount)];
   } catch (err) {
@@ -52,6 +60,19 @@ app.get('/ypub/:ypub/amount/:amount', function (req,res) {
 
   res.send(JSON.stringify(addresses));
 
+});
+
+// generate single address from the given ypub on the given index
+app.get('/ypub/:ypub/at/:idx', function (req,res){
+  var hdNode = returnHDNodeFromYpub(req.params.ypub);
+
+  try {
+    var address = nodeToP2shSegwitAddress(hdNode.derive(0).derive(parseInt(req.params.idx)));
+  } catch (err) {
+    res.send("Index is not integer!");
+  }
+
+  res.send(JSON.stringify(address));
 });
 
 app.listen(3000, () => console.log('app listening on port 3000!'))
